@@ -1,0 +1,64 @@
+[tool.pytest.ini_options]
+# Pytest configuration
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Test output options
+addopts = [
+    "-v",                          # Verbose output
+    "--strict-markers",            # Strict marker checking
+    "--tb=short",                  # Shorter traceback format
+    "--cov=src",                   # Coverage for src directory
+    "--cov-report=term-missing",   # Show missing lines in coverage
+    "--cov-report=html",           # Generate HTML coverage report
+    "--cov-report=xml",            # Generate XML coverage report for CI
+    "--cov-branch",                # Measure branch coverage
+    "--cov-fail-under=50",         # Fail if coverage below 50%
+    "-ra",                         # Show summary of all test outcomes
+    "--maxfail=5",                 # Stop after 5 failures
+    "--timeout=300",               # Global timeout of 5 minutes per test
+]
+
+# Markers for organizing tests
+markers = [
+    "unit: Unit tests (fast, no external dependencies)",
+    "integration: Integration tests (may require external services)",
+    "slow: Tests that take a long time to run",
+    "agent: Tests for agent functionality",
+    "schema: Tests for Pydantic schemas",
+    "tools: Tests for agent tools",
+    "prompts: Tests for prompt templates",
+    "retrieval: Tests for document retrieval",
+    "memory: Tests for conversation memory",
+    "e2e: End-to-end tests",
+]
+
+# Coverage options
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "*/dist-packages/*",
+    "*/.venv/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
