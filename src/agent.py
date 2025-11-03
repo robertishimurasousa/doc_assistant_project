@@ -1,13 +1,13 @@
 """LangGraph workflow for the document assistant agent."""
 
-from typing import Dict, Any, List, Annotated
+from typing import Dict, Any, List, Annotated, Union
 import operator
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel, Field
 
-from src.schemas import UserIntent, AnswerResponse
+from src.schemas import UserIntent, AnswerResponse, CalculationResponse, SummarizationResponse
 from src.retrieval import DocumentRetriever
 from src.prompts import PromptTemplates
 from src.tools import create_agent_tools
@@ -22,7 +22,7 @@ class GraphState(Dict):
     next_step: str
     conversation_summary: str
     active_documents: List[str]
-    current_response: Any
+    current_response: Union[AnswerResponse, CalculationResponse, SummarizationResponse, Any]
     tools_used: List[str]
     session_id: str
     user_id: str
@@ -44,11 +44,24 @@ def classify_intent(state: GraphState, config: RunnableConfig) -> GraphState:
 
     if not llm:
         # Fallback to simple rule-based classification
-        user_input = state.get("user_input", "")
-        if any(word in user_input.lower() for word in ["calculate", "sum", "total", "average", "multiply"]):
-            intent_type = "calculation"
-        elif any(word in user_input.lower() for word in ["summarize", "summary", "overview"]):
+        user_input = state.get("user_input", "").lower()
+
+        # Use word boundaries to avoid false matches (e.g., "sum" in "summarize")
+        import re
+
+        # Check for calculation keywords with word boundaries
+        calc_pattern = r'\b(calculate|sum|total|average|multiply|divide|subtract|add)\b'
+        has_calc = bool(re.search(calc_pattern, user_input))
+
+        # Check for summarization keywords with word boundaries
+        summ_pattern = r'\b(summarize|summarization|summary|overview)\b'
+        has_summ = bool(re.search(summ_pattern, user_input))
+
+        # Prioritize more specific matches
+        if has_summ:
             intent_type = "summarization"
+        elif has_calc:
+            intent_type = "calculation"
         else:
             intent_type = "qa"
 
@@ -125,38 +138,43 @@ def qa_agent(state: GraphState, config: RunnableConfig) -> GraphState:
         }
 
     # Get system prompt for QA
-    system_prompt = PromptTemplates.get_chat_prompt_template("qa")
+    system_prompt = PromptTemplates.QA_SYSTEM_PROMPT
 
     # Bind tools to LLM - allow tool calling first
     llm_with_tools = llm.bind_tools(tools)
 
-    # Create messages
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": state["user_input"]}
-    ]
-
-    # Add conversation history if available (filter out tool messages and assistant messages with tool_calls)
+    # Create messages - include conversation history
+    messages = []
+    
+    # Add conversation history if available (filter out tool messages)
     if state.get("messages"):
         for msg in state["messages"][-5:]:  # Last 5 messages
             # Skip tool messages and assistant messages with tool_calls to avoid API errors
             if isinstance(msg, dict):
                 if msg.get("role") == "tool" or msg.get("tool_calls"):
-                    continue  # Skip these messages
-                messages.insert(-1, msg)
+                    continue
+                messages.append(msg)
             elif not isinstance(msg, dict):
                 # If it's not a dict, try to convert
                 try:
                     if hasattr(msg, 'role') and msg.role != "tool" and not hasattr(msg, 'tool_calls'):
-                        messages.insert(-1, {"role": msg.role, "content": str(msg.content)})
+                        messages.append({"role": msg.role, "content": str(msg.content)})
                 except:
-                    pass  # Skip problematic messages
+                    pass
+
+    # Add current user input
+    messages.append({"role": "user", "content": state["user_input"]})
 
     # Step 1: Invoke LLM with tools to allow tool calls
-    tool_response = llm_with_tools.invoke(messages)
+    tool_response = llm_with_tools.invoke([
+        {"role": "system", "content": system_prompt},
+        *messages
+    ])
 
     # Step 2: Check if tools were called and execute them
     tools_used_list = []
+    tool_results_text = ""
+    
     if hasattr(tool_response, 'tool_calls') and tool_response.tool_calls:
         # Execute tool calls and collect results
         tool_results = []
@@ -172,24 +190,39 @@ def qa_agent(state: GraphState, config: RunnableConfig) -> GraphState:
                     tool_results.append((tool_call.get('id'), tool_result))
                     break
 
-        # Add tool results to response
+        # Format tool results
         tool_results_text = "\n\n".join([f"Tool result: {result}" for _, result in tool_results])
 
-        # Create a fresh message list with system prompt, tool results, and question
-        # This avoids carrying over any problematic message formats
-        fresh_messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Based on this information from the documents:\n\n{tool_results_text}\n\nPlease provide a detailed answer to this question: {state['user_input']}\n\nUse the specific data from the documents in your answer."}
-        ]
+    # Step 3: Generate final response with conversation history preserved
+    # Build final messages list including history
+    final_messages = []
+    
+    # Add conversation history (maintaining context)
+    if state.get("messages"):
+        for msg in state["messages"][-5:]:
+            if isinstance(msg, dict):
+                if msg.get("role") != "tool" and not msg.get("tool_calls"):
+                    final_messages.append(msg)
+    
+    # Add tool results context if available
+    if tool_results_text:
+        final_messages.append({
+            "role": "user", 
+            "content": f"Based on this information from the documents:\n\n{tool_results_text}\n\nPlease provide a detailed answer to this question: {state['user_input']}\n\nUse the specific data from the documents in your answer."
+        })
+    else:
+        final_messages.append({"role": "user", "content": state["user_input"]})
 
-        # Step 3: Get final response WITHOUT tools (use plain LLM to avoid tool_calls)
-        tool_response = llm.invoke(fresh_messages)
+    # Get final response WITHOUT tools (use plain LLM to avoid tool_calls)
+    final_response = llm.invoke([
+        {"role": "system", "content": system_prompt},
+        *final_messages
+    ])
 
-    # Step 4: Format answer as text and parse into structured format
-    # Use the content directly instead of making another LLM call
-    answer_text = str(tool_response.content) if tool_response.content else "No answer provided"
+    # Format answer as text
+    answer_text = str(final_response.content) if final_response.content else "No answer provided"
 
-    # Create structured response manually from the answer
+    # Create structured response
     response = AnswerResponse(
         question=state["user_input"],
         answer=answer_text,
@@ -224,10 +257,10 @@ def summarization_agent(state: GraphState, config: RunnableConfig) -> GraphState
 
     if not llm:
         return {
-            "current_response": AnswerResponse(
-                question=state["user_input"],
-                answer="LLM not configured. Please configure an LLM to use this feature.",
-                sources=[],
+            "current_response": SummarizationResponse(
+                summary="LLM not configured. Please configure an LLM to use this feature.",
+                key_points=[],
+                document_ids=[],
                 confidence=0.0
             ),
             "next_step": "update_memory",
@@ -235,38 +268,44 @@ def summarization_agent(state: GraphState, config: RunnableConfig) -> GraphState
         }
 
     # Get system prompt for summarization
-    system_prompt = PromptTemplates.get_chat_prompt_template("summarization")
+    system_prompt = PromptTemplates.SUMMARIZATION_SYSTEM_PROMPT
 
     # Bind tools to LLM - allow tool calling first
     llm_with_tools = llm.bind_tools(tools)
 
-    # Create messages
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": state["user_input"]}
-    ]
-
-    # Add conversation history if available (filter out tool messages and assistant messages with tool_calls)
+    # Create messages - include conversation history
+    messages = []
+    
+    # Add conversation history if available (filter out tool messages)
     if state.get("messages"):
         for msg in state["messages"][-5:]:  # Last 5 messages
             # Skip tool messages and assistant messages with tool_calls to avoid API errors
             if isinstance(msg, dict):
                 if msg.get("role") == "tool" or msg.get("tool_calls"):
-                    continue  # Skip these messages
-                messages.insert(-1, msg)
+                    continue
+                messages.append(msg)
             elif not isinstance(msg, dict):
                 # If it's not a dict, try to convert
                 try:
                     if hasattr(msg, 'role') and msg.role != "tool" and not hasattr(msg, 'tool_calls'):
-                        messages.insert(-1, {"role": msg.role, "content": str(msg.content)})
+                        messages.append({"role": msg.role, "content": str(msg.content)})
                 except:
-                    pass  # Skip problematic messages
+                    pass
+
+    # Add current user input
+    messages.append({"role": "user", "content": state["user_input"]})
 
     # Step 1: Invoke LLM with tools to allow tool calls
-    tool_response = llm_with_tools.invoke(messages)
+    tool_response = llm_with_tools.invoke([
+        {"role": "system", "content": system_prompt},
+        *messages
+    ])
 
     # Step 2: Check if tools were called and execute them
     tools_used_list = []
+    tool_results_text = ""
+    original_length = 0
+    
     if hasattr(tool_response, 'tool_calls') and tool_response.tool_calls:
         # Execute tool calls and collect results
         tool_results = []
@@ -280,32 +319,54 @@ def summarization_agent(state: GraphState, config: RunnableConfig) -> GraphState
                 if tool.name == tool_name:
                     tool_result = tool.invoke(tool_args)
                     tool_results.append((tool_call.get('id'), tool_result))
+                    original_length += len(str(tool_result))
                     break
 
-        # Add tool results to response
-        tool_results_text = "\n\n".join([f"Tool result: {result}" for _, result in tool_results])
+        # Format tool results
+        tool_results_text = "\n\n".join([f"Document content: {result}" for _, result in tool_results])
 
-        # Create a fresh message list with system prompt, tool results, and question
-        # This avoids carrying over any problematic message formats
-        fresh_messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Based on this information from the documents:\n\n{tool_results_text}\n\nPlease provide a detailed answer to this question: {state['user_input']}\n\nUse the specific data from the documents in your answer."}
-        ]
+    # Step 3: Generate structured response with conversation history preserved
+    # Build final messages list including history
+    final_messages = []
+    
+    # Add conversation history (maintaining context)
+    if state.get("messages"):
+        for msg in state["messages"][-5:]:
+            if isinstance(msg, dict):
+                if msg.get("role") != "tool" and not msg.get("tool_calls"):
+                    final_messages.append(msg)
+    
+    # Add tool results context if available
+    if tool_results_text:
+        final_messages.append({
+            "role": "user", 
+            "content": f"Question: {state['user_input']}\n\nDocuments to summarize:\n{tool_results_text}\n\nProvide a structured summary with key points extracted from the documents."
+        })
+    else:
+        final_messages.append({
+            "role": "user",
+            "content": f"Question: {state['user_input']}\n\nProvide a structured summary response."
+        })
 
-        # Step 3: Get final response WITHOUT tools (use plain LLM to avoid tool_calls)
-        tool_response = llm.invoke(fresh_messages)
+    # Use structured output for SummarizationResponse
+    structured_llm = llm.with_structured_output(SummarizationResponse, method="function_calling")
+    
+    # Invoke with system prompt and conversation context
+    response = structured_llm.invoke([
+        {"role": "system", "content": "You are a summarization assistant. Generate a structured response with a concise summary, key points, and document references."},
+        *final_messages
+    ])
 
-    # Step 4: Format answer as text and parse into structured format
-    # Use the content directly instead of making another LLM call
-    answer_text = str(tool_response.content) if tool_response.content else "No answer provided"
-
-    # Create structured response manually from the answer
-    response = AnswerResponse(
-        question=state["user_input"],
-        answer=answer_text,
-        sources=tools_used_list,
-        confidence=0.9 if tools_used_list else 0.5
-    )
+    # Update fields if not already set
+    if not response.document_ids and tools_used_list:
+        response.document_ids = tools_used_list
+    
+    if not response.original_length and original_length > 0:
+        response.original_length = original_length
+    
+    # Ensure confidence is set
+    if response.confidence == 0.0 or response.confidence is None:
+        response.confidence = 0.9 if tools_used_list else 0.6
 
     # Update tools used
     tools_used = state.get("tools_used", []) + tools_used_list
@@ -334,9 +395,10 @@ def calculation_agent(state: GraphState, config: RunnableConfig) -> GraphState:
 
     if not llm:
         return {
-            "current_response": AnswerResponse(
-                question=state["user_input"],
-                answer="LLM not configured. Please configure an LLM to use this feature.",
+            "current_response": CalculationResponse(
+                expression="N/A",
+                result="LLM not configured",
+                explanation="LLM not configured. Please configure an LLM to use this feature.",
                 sources=[],
                 confidence=0.0
             ),
@@ -345,38 +407,43 @@ def calculation_agent(state: GraphState, config: RunnableConfig) -> GraphState:
         }
 
     # Get system prompt for calculation
-    system_prompt = PromptTemplates.get_chat_prompt_template("calculation")
+    system_prompt = PromptTemplates.CALCULATION_SYSTEM_PROMPT
 
     # Bind tools to LLM - allow tool calling first
     llm_with_tools = llm.bind_tools(tools)
 
-    # Create messages
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": state["user_input"]}
-    ]
-
-    # Add conversation history if available (filter out tool messages and assistant messages with tool_calls)
+    # Create messages - include conversation history
+    messages = []
+    
+    # Add conversation history if available (filter out tool messages)
     if state.get("messages"):
         for msg in state["messages"][-5:]:  # Last 5 messages
             # Skip tool messages and assistant messages with tool_calls to avoid API errors
             if isinstance(msg, dict):
                 if msg.get("role") == "tool" or msg.get("tool_calls"):
-                    continue  # Skip these messages
-                messages.insert(-1, msg)
+                    continue
+                messages.append(msg)
             elif not isinstance(msg, dict):
                 # If it's not a dict, try to convert
                 try:
                     if hasattr(msg, 'role') and msg.role != "tool" and not hasattr(msg, 'tool_calls'):
-                        messages.insert(-1, {"role": msg.role, "content": str(msg.content)})
+                        messages.append({"role": msg.role, "content": str(msg.content)})
                 except:
-                    pass  # Skip problematic messages
+                    pass
+
+    # Add current user input
+    messages.append({"role": "user", "content": state["user_input"]})
 
     # Step 1: Invoke LLM with tools to allow tool calls
-    tool_response = llm_with_tools.invoke(messages)
+    tool_response = llm_with_tools.invoke([
+        {"role": "system", "content": system_prompt},
+        *messages
+    ])
 
     # Step 2: Check if tools were called and execute them
     tools_used_list = []
+    tool_results_text = ""
+    
     if hasattr(tool_response, 'tool_calls') and tool_response.tool_calls:
         # Execute tool calls and collect results
         tool_results = []
@@ -392,30 +459,48 @@ def calculation_agent(state: GraphState, config: RunnableConfig) -> GraphState:
                     tool_results.append((tool_call.get('id'), tool_result))
                     break
 
-        # Add tool results to response
+        # Format tool results
         tool_results_text = "\n\n".join([f"Tool result: {result}" for _, result in tool_results])
 
-        # Create a fresh message list with system prompt, tool results, and question
-        # This avoids carrying over any problematic message formats
-        fresh_messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Based on this information from the documents:\n\n{tool_results_text}\n\nPlease provide a detailed answer to this question: {state['user_input']}\n\nUse the specific data from the documents in your answer."}
-        ]
+    # Step 3: Generate structured response with conversation history preserved
+    # Build final messages list including history
+    final_messages = []
+    
+    # Add conversation history (maintaining context)
+    if state.get("messages"):
+        for msg in state["messages"][-5:]:
+            if isinstance(msg, dict):
+                if msg.get("role") != "tool" and not msg.get("tool_calls"):
+                    final_messages.append(msg)
+    
+    # Add tool results context if available
+    if tool_results_text:
+        final_messages.append({
+            "role": "user", 
+            "content": f"Question: {state['user_input']}\n\nInformation from documents and tools:\n{tool_results_text}\n\nProvide a structured calculation response with the expression, result, and clear explanation."
+        })
+    else:
+        final_messages.append({
+            "role": "user",
+            "content": f"Question: {state['user_input']}\n\nProvide a structured calculation response."
+        })
 
-        # Step 3: Get final response WITHOUT tools (use plain LLM to avoid tool_calls)
-        tool_response = llm.invoke(fresh_messages)
+    # Use structured output for CalculationResponse
+    structured_llm = llm.with_structured_output(CalculationResponse, method="function_calling")
+    
+    # Invoke with system prompt and conversation context
+    response = structured_llm.invoke([
+        {"role": "system", "content": "You are a calculation assistant. Generate a structured response with the expression, result, explanation, and relevant sources."},
+        *final_messages
+    ])
 
-    # Step 4: Format answer as text and parse into structured format
-    # Use the content directly instead of making another LLM call
-    answer_text = str(tool_response.content) if tool_response.content else "No answer provided"
-
-    # Create structured response manually from the answer
-    response = AnswerResponse(
-        question=state["user_input"],
-        answer=answer_text,
-        sources=tools_used_list,
-        confidence=0.9 if tools_used_list else 0.5
-    )
+    # Update tools used if not already set
+    if not response.sources and tools_used_list:
+        response.sources = tools_used_list
+    
+    # Ensure confidence is set
+    if response.confidence == 0.0 or response.confidence is None:
+        response.confidence = 0.9 if tools_used_list else 0.6
 
     # Update tools used
     tools_used = state.get("tools_used", []) + tools_used_list
@@ -460,6 +545,19 @@ def update_memory(state: GraphState, config: RunnableConfig) -> GraphState:
     messages = state.get("messages", [])
     current_response = state.get("current_response")
 
+    # Extract response text based on response type
+    if current_response:
+        if isinstance(current_response, AnswerResponse):
+            response_text = current_response.answer
+        elif isinstance(current_response, CalculationResponse):
+            response_text = f"{current_response.explanation} Result: {current_response.result}"
+        elif isinstance(current_response, SummarizationResponse):
+            response_text = current_response.summary
+        else:
+            response_text = str(current_response)
+    else:
+        response_text = 'No response'
+
     # Create summary prompt
     summary_prompt = f"""Summarize this conversation and identify active documents being discussed.
 
@@ -468,7 +566,7 @@ Recent messages:
 
 Current exchange:
 User: {state['user_input']}
-Assistant: {current_response.answer if current_response else 'No response'}
+Assistant: {response_text}
 
 Provide:
 1. A brief summary of the conversation (2-3 sentences)

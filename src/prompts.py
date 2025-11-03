@@ -2,6 +2,7 @@
 
 from typing import List, Dict, Any
 from src.schemas import Document
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate
 
 
 class PromptTemplates:
@@ -263,21 +264,31 @@ Summary:"""
         )
 
     @staticmethod
-    def get_chat_prompt_template(intent_type: str = "qa") -> str:
+    def get_chat_prompt_template(intent_type: str = "qa") -> ChatPromptTemplate:
         """Get the chat prompt template based on intent type.
 
         Args:
             intent_type: The type of intent ("qa", "summarization", "calculation")
 
         Returns:
-            System prompt for the given intent type
+            ChatPromptTemplate object for the given intent type
         """
+        # Select the appropriate system prompt
         if intent_type == "qa":
-            return PromptTemplates.QA_SYSTEM_PROMPT
+            system_prompt_str = PromptTemplates.QA_SYSTEM_PROMPT
         elif intent_type == "summarization":
-            return PromptTemplates.SUMMARIZATION_SYSTEM_PROMPT
+            system_prompt_str = PromptTemplates.SUMMARIZATION_SYSTEM_PROMPT
         elif intent_type == "calculation":
-            return PromptTemplates.CALCULATION_SYSTEM_PROMPT
+            system_prompt_str = PromptTemplates.CALCULATION_SYSTEM_PROMPT
         else:
             # Default to QA prompt for unknown intents
-            return PromptTemplates.QA_SYSTEM_PROMPT
+            system_prompt_str = PromptTemplates.QA_SYSTEM_PROMPT
+
+        # Construct and return the ChatPromptTemplate
+        template = ChatPromptTemplate.from_messages([
+            SystemMessagePromptTemplate.from_template(system_prompt_str),
+            MessagesPlaceholder(variable_name="messages"),  # For conversation history
+            HumanMessagePromptTemplate.from_template("{user_input}")
+        ])
+        
+        return template

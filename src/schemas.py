@@ -76,3 +76,26 @@ class UserIntent(BaseModel):
     intent_type: str = Field(..., description="The classified intent: 'qa', 'summarization', 'calculation', or 'unknown'")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence in classification (0-1)")
     reasoning: str = Field(..., description="Explanation for the classification")
+
+
+class CalculationResponse(BaseModel):
+    """Schema for structured calculation responses."""
+
+    expression: str = Field(..., description="The mathematical expression that was evaluated")
+    result: str = Field(..., description="The calculated result")
+    explanation: str = Field(..., description="Explanation of the calculation steps and context")
+    units: Optional[str] = Field(None, description="Units of measurement if applicable")
+    sources: List[str] = Field(default_factory=list, description="Source documents used for the calculation")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score between 0 and 1")
+    timestamp: datetime = Field(default_factory=datetime.now, description="When the response was generated")
+
+
+class SummarizationResponse(BaseModel):
+    """Schema for structured summarization responses."""
+
+    summary: str = Field(..., description="The generated summary")
+    key_points: List[str] = Field(default_factory=list, description="Key points extracted from the documents")
+    original_length: Optional[int] = Field(None, description="Length of original content in characters")
+    document_ids: List[str] = Field(default_factory=list, description="List of document IDs that were summarized")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score between 0 and 1")
+    timestamp: datetime = Field(default_factory=datetime.now, description="When the response was generated")
