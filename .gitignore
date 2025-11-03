@@ -2,3 +2,5 @@
 .claude
 .ds_store
 __pycache__
+.venv
+.vscode
