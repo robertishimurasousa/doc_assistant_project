@@ -1,0 +1,21 @@
+customer_id,customer_name,product_id,product_name,rating,feedback_date,feedback_text,category,sentiment
+CUST-001,Acme Corporation,PROD-001,Enterprise Software License,5,2024-03-15,"Excellent product! The unlimited users feature is exactly what we needed for our growing team.",positive,positive
+CUST-002,TechStart Inc,PROD-002,Cloud Services Subscription - Professional,4,2024-03-10,"Good service overall. The 99.9% uptime has been reliable. Would like more storage options.",positive,positive
+CUST-003,Global Solutions Ltd,PROD-003,Professional Services - Consulting,5,2024-03-08,"Outstanding consulting services. The team helped us with our digital transformation journey.",positive,positive
+CUST-004,Innovation Labs,PROD-005,Mobile App Builder,3,2024-03-05,"The platform is decent but could use more templates. Integration with third-party APIs needs improvement.",neutral,neutral
+CUST-005,Enterprise Systems,PROD-004,Cloud Services Subscription - Enterprise,5,2024-03-20,"Best cloud service we've used. The 99.99% uptime and dedicated support are worth every penny.",positive,positive
+CUST-006,Small Biz Co,PROD-002,Cloud Services Subscription - Professional,4,2024-03-18,"Very satisfied with the automated backups. Setup was easy and support team is responsive.",positive,positive
+CUST-007,Mega Corp,PROD-001,Enterprise Software License,4,2024-03-12,"Powerful software with great features. The learning curve is steep but documentation helps.",positive,positive
+CUST-008,StartupXYZ,PROD-005,Mobile App Builder,2,2024-03-07,"Interface is confusing. Needs better tutorials. Had issues with iOS app publishing.",negative,negative
+CUST-009,Tech Ventures,PROD-003,Professional Services - Consulting,5,2024-03-22,"Consultants were knowledgeable and professional. Helped us save time and avoid costly mistakes.",positive,positive
+CUST-010,Digital Agency,PROD-002,Cloud Services Subscription - Professional,5,2024-03-19,"Perfect for our agency needs. CDN integration improved our client sites significantly.",positive,positive
+CUST-011,Finance Corp,PROD-004,Cloud Services Subscription - Enterprise,5,2024-03-16,"Security features are top-notch. Compliance support helped us meet regulatory requirements.",positive,positive
+CUST-012,Retail Chain,PROD-001,Enterprise Software License,3,2024-03-11,"Good product but expensive. Custom integrations took longer than expected to set up.",neutral,neutral
+CUST-013,Marketing Pro,PROD-005,Mobile App Builder,4,2024-03-09,"Great for quick prototyping. Template library could be expanded but overall very useful.",positive,positive
+CUST-014,Consulting Group,PROD-003,Professional Services - Consulting,4,2024-03-14,"Professional and timely service. Would have liked more follow-up sessions included.",positive,positive
+CUST-015,Web Solutions,PROD-002,Cloud Services Subscription - Professional,2,2024-03-06,"Experienced several downtimes last month. Support response was slow. Not meeting SLA.",negative,negative
+CUST-016,Enterprise Hub,PROD-004,Cloud Services Subscription - Enterprise,5,2024-03-21,"Exceptional service and support. Real-time replication works flawlessly.",positive,positive
+CUST-017,Mobile First,PROD-005,Mobile App Builder,3,2024-03-13,"Platform works but has limitations. Good for basic apps but not for complex features.",neutral,neutral
+CUST-018,Growth Company,PROD-001,Enterprise Software License,5,2024-03-17,"Amazing product! 24/7 support team is incredibly helpful and responsive.",positive,positive
+CUST-019,Cloud Users,PROD-002,Cloud Services Subscription - Professional,4,2024-03-04,"Reliable service with good value for money. Backup restoration could be faster.",positive,positive
+CUST-020,Big Enterprise,PROD-004,Cloud Services Subscription - Enterprise,4,2024-03-23,"Very good service. Custom SLA options are appreciated. Dashboard could be more intuitive.",positive,positive

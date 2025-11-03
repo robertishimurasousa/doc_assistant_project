@@ -1,0 +1,128 @@
+{
+  "session_id": "251c662c-d121-43d9-bc13-a7f8d9f99993",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What was the total Q1 sales revenue?",
+      "timestamp": "2025-11-03T12:07:51.583136"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.586718"
+    },
+    {
+      "role": "user",
+      "content": "Who is the CTO of the company?",
+      "timestamp": "2025-11-03T12:07:51.587129"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.589625"
+    },
+    {
+      "role": "user",
+      "content": "What are the top 3 products by revenue?",
+      "timestamp": "2025-11-03T12:07:51.589908"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.591577"
+    },
+    {
+      "role": "user",
+      "content": "Calculate the average monthly sales for Q1 2024",
+      "timestamp": "2025-11-03T12:07:51.591759"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.593909"
+    },
+    {
+      "role": "user",
+      "content": "What is the profit margin for Q1?",
+      "timestamp": "2025-11-03T12:07:51.594214"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.596153"
+    },
+    {
+      "role": "user",
+      "content": "Calculate the total project budget",
+      "timestamp": "2025-11-03T12:07:51.596408"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.598428"
+    },
+    {
+      "role": "user",
+      "content": "Summarize the Q1 sales report",
+      "timestamp": "2025-11-03T12:07:51.598736"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.601143"
+    },
+    {
+      "role": "user",
+      "content": "Give me an overview of the team structure",
+      "timestamp": "2025-11-03T12:07:51.601483"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.603741"
+    },
+    {
+      "role": "user",
+      "content": "Summarize the key financial metrics",
+      "timestamp": "2025-11-03T12:07:51.604039"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.605826"
+    },
+    {
+      "role": "user",
+      "content": "What was the revenue in March 2024?",
+      "timestamp": "2025-11-03T12:07:51.606144"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.607739"
+    },
+    {
+      "role": "user",
+      "content": "How does that compare to January?",
+      "timestamp": "2025-11-03T12:07:51.607997"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.610013"
+    },
+    {
+      "role": "user",
+      "content": "Calculate the percentage increase",
+      "timestamp": "2025-11-03T12:07:51.610359"
+    },
+    {
+      "role": "assistant",
+      "content": "Error processing query: classify_intent() missing 1 required positional argument: 'config'",
+      "timestamp": "2025-11-03T12:07:51.612536"
+    }
+  ],
+  "metadata": {
+    "created_at": "2025-11-03T12:07:51.583115"
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "catalog": {
+    "name": "Company Product Catalog",
+    "version": "2024.1",
+    "last_updated": "2024-03-31",
+    "currency": "USD"
+  },
+  "products": [
+    {
+      "id": "PROD-001",
+      "name": "Enterprise Software License",
+      "category": "Software Licenses",
+      "description": "Full-featured enterprise software license with unlimited users",
+      "price": 5000,
+      "pricing_model": "one-time",
+      "features": [
+        "Unlimited users",
+        "24/7 support",
+        "Advanced analytics",
+        "Custom integrations",
+        "On-premise deployment"
+      ],
+      "target_market": "Large enterprises",
+      "popularity_rank": 1,
+      "units_sold_q1": 15,
+      "revenue_q1": 75000,
+      "stock_status": "in_stock",
+      "release_date": "2023-01-15"
+    },
+    {
+      "id": "PROD-002",
+      "name": "Cloud Services Subscription - Professional",
+      "category": "Cloud Services",
+      "description": "Professional cloud hosting and services package",
+      "price": 299,
+      "pricing_model": "monthly",
+      "features": [
+        "100GB storage",
+        "99.9% uptime SLA",
+        "Automated backups",
+        "CDN integration",
+        "Email support"
+      ],
+      "target_market": "SMBs",
+      "popularity_rank": 2,
+      "units_sold_q1": 200,
+      "revenue_q1": 60000,
+      "stock_status": "in_stock",
+      "release_date": "2023-06-01"
+    },
+    {
+      "id": "PROD-003",
+      "name": "Professional Services - Consulting",
+      "category": "Professional Services",
+      "description": "Expert consulting services for digital transformation",
+      "price": 150,
+      "pricing_model": "hourly",
+      "features": [
+        "Strategy consulting",
+        "Technical architecture",
+        "Implementation support",
+        "Training sessions",
+        "Best practices guidance"
+      ],
+      "target_market": "All segments",
+      "popularity_rank": 3,
+      "units_sold_q1": 300,
+      "revenue_q1": 45000,
+      "stock_status": "available",
+      "release_date": "2022-03-01"
+    },
+    {
+      "id": "PROD-004",
+      "name": "Cloud Services Subscription - Enterprise",
+      "category": "Cloud Services",
+      "description": "Enterprise-grade cloud infrastructure with advanced features",
+      "price": 999,
+      "pricing_model": "monthly",
+      "features": [
+        "1TB storage",
+        "99.99% uptime SLA",
+        "Real-time replication",
+        "Advanced security",
+        "Dedicated support",
+        "Custom SLA options"
+      ],
+      "target_market": "Large enterprises",
+      "popularity_rank": 4,
+      "units_sold_q1": 50,
+      "revenue_q1": 50000,
+      "stock_status": "in_stock",
+      "release_date": "2023-09-15"
+    },
+    {
+      "id": "PROD-005",
+      "name": "Mobile App Builder",
+      "category": "Software Licenses",
+      "description": "Low-code platform for building mobile applications",
+      "price": 199,
+      "pricing_model": "monthly",
+      "features": [
+        "Drag-and-drop interface",
+        "iOS and Android support",
+        "Template library",
+        "API integrations",
+        "App store publishing"
+      ],
+      "target_market": "SMBs and Startups",
+      "popularity_rank": 5,
+      "units_sold_q1": 155,
+      "revenue_q1": 31000,
+      "stock_status": "in_stock",
+      "release_date": "2024-01-10"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Software Licenses",
+      "total_products": 2,
+      "revenue_q1": 106000,
+      "percentage_total_revenue": 41.7,
+      "growth_yoy": 15.5
+    },
+    {
+      "name": "Cloud Services",
+      "total_products": 2,
+      "revenue_q1": 110000,
+      "percentage_total_revenue": 43.3,
+      "growth_yoy": 28.3
+    },
+    {
+      "name": "Professional Services",
+      "total_products": 1,
+      "revenue_q1": 45000,
+      "percentage_total_revenue": 17.7,
+      "growth_yoy": 12.5
+    }
+  ],
+  "pricing_tiers": {
+    "starter": {
+      "name": "Starter Plan",
+      "monthly_price": 99,
+      "annual_price": 990,
+      "features": ["Basic features", "Email support", "5 users"],
+      "target": "Small businesses"
+    },
+    "professional": {
+      "name": "Professional Plan",
+      "monthly_price": 299,
+      "annual_price": 2990,
+      "features": ["Advanced features", "Priority support", "25 users", "Analytics"],
+      "target": "Growing businesses"
+    },
+    "enterprise": {
+      "name": "Enterprise Plan",
+      "monthly_price": 999,
+      "annual_price": 9990,
+      "features": ["All features", "24/7 support", "Unlimited users", "Custom integration", "SLA"],
+      "target": "Large enterprises"
+    }
+  },
+  "promotions": [
+    {
+      "id": "PROMO-Q2-2024",
+      "name": "Q2 Spring Sale",
+      "discount_percentage": 20,
+      "valid_from": "2024-04-01",
+      "valid_until": "2024-06-30",
+      "applicable_products": ["PROD-002", "PROD-005"],
+      "conditions": "Annual subscription only"
+    }
+  ],
+  "customer_segments": {
+    "small_business": {
+      "size": "1-50 employees",
+      "average_deal_size": 299,
+      "preferred_products": ["PROD-002", "PROD-005"],
+      "percentage_customers": 60
+    },
+    "medium_business": {
+      "size": "51-500 employees",
+      "average_deal_size": 999,
+      "preferred_products": ["PROD-004", "PROD-003"],
+      "percentage_customers": 30
+    },
+    "enterprise": {
+      "size": "500+ employees",
+      "average_deal_size": 5000,
+      "preferred_products": ["PROD-001", "PROD-004"],
+      "percentage_customers": 10
+    }
+  }
+}

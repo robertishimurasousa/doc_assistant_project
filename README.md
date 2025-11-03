@@ -371,13 +371,26 @@ intent = structured_llm.invoke("Classify this intent...")
    cp .env.example .env
    ```
 
-   Edit `.env`:
+   Edit `.env` to choose your API provider:
+
+   **Option A: Use OpenAI API directly** (recommended for personal use):
    ```bash
-   OPENAI_API_KEY=your_api_key_here
+   API_PROVIDER=openai
+   OPENAI_API_KEY=sk-proj-your_openai_key_here
+   DEFAULT_MODEL=gpt-4
+   DEFAULT_TEMPERATURE=0
+   ```
+
+   **Option B: Use Vocareum endpoint** (for course environments):
+   ```bash
+   API_PROVIDER=vocareum
+   OPENAI_API_KEY=your_vocareum_api_key_here
    OPENAI_BASE_URL=https://openai.vocareum.com/v1
    DEFAULT_MODEL=gpt-4
    DEFAULT_TEMPERATURE=0
    ```
+
+   **See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for detailed configuration guide.**
 
 4. **Prepare documents**:
    ```bash
@@ -584,28 +597,70 @@ doc_assistant_project/
 │   ├── agent.py            # LangGraph workflow (classify_intent, agents, update_memory)
 │   ├── assistant.py        # Main DocumentAssistant class
 │   └── config.py           # Vocareum/OpenAI configuration
+├── docs/                   # Documentation files
+│   ├── IMPLEMENTATION.md   # Technical implementation details
+│   ├── QUICK_START.md      # Quick start guide
+│   ├── VOCAREUM_SETUP.md   # Vocareum-specific setup instructions
+│   ├── PROJECT_RUBRIC_CHECKLIST.md  # Rubric requirements mapping
+│   └── TESTING_GUIDE.md    # Complete testing guide
+├── data/                   # Sample data files for testing
+│   ├── README.md           # Data documentation
+│   ├── sales_report_q1_2024.txt      # Q1 sales report (~3 KB)
+│   ├── team_structure.txt            # Team information (~2.5 KB)
+│   ├── financial_overview.txt        # Financial data (~5 KB)
+│   ├── product_catalog.json          # Product catalog (JSON)
+│   └── customer_feedback.csv         # Customer feedback (CSV)
+├── notebooks/              # Jupyter notebooks for interactive testing
+│   ├── README.md           # Notebook documentation
+│   └── document_assistant_demo.ipynb # Interactive demo notebook
+├── tests/                  # Test scripts
+│   ├── test_assistant.py   # Automated test suite
+│   ├── test_with_sample_data.py # Test script using sample data from data/
+│   └── check_environment.py # Environment verification script
 ├── sessions/               # Auto-generated session storage (JSON files)
-├── documents/              # Your document files (.txt, .md, .json, .csv)
 ├── main.py                 # Interactive CLI entry point
-├── test_assistant.py       # Automated test suite
-├── requirements.txt        # Python dependencies
+├── requirements.txt        # Python dependencies (includes Jupyter)
 ├── .env.example            # Environment variable template
 ├── .env                    # Your actual configuration (not in git)
-├── README.md               # This file
-├── IMPLEMENTATION.md       # Technical implementation details
-├── QUICK_START.md          # Quick start guide
-├── VOCAREUM_SETUP.md       # Vocareum-specific setup instructions
-└── PROJECT_RUBRIC_CHECKLIST.md  # Rubric requirements mapping
+└── README.md               # This file (main documentation)
 ```
 
 ## Testing
 
-### Automated Test Suite
+### Quick Test with Sample Data
 
-Run the complete test suite:
+The fastest way to test all features with pre-loaded sample data:
 
 ```bash
-python test_assistant.py
+python tests/test_with_sample_data.py
+```
+
+This comprehensive test script:
+- ✅ Uses 5 sample documents from `data/` directory (~15.5 KB)
+- ✅ Tests all 3 intent types (Q&A, Calculation, Summarization)
+- ✅ Demonstrates conversation memory
+- ✅ Shows session management
+- ✅ Displays statistics and results
+- ✅ No document creation needed - ready to run!
+
+**Sample output**:
+```
+📊 Initial Statistics:
+  - Session ID: abc-123-def
+  - Documents: 5
+  - Messages: 0
+
+TEST 1: Q&A Intent - Information Retrieval
+Query 1: What was the total Q1 sales revenue?
+💬 Response: Based on the sales report, the total Q1 2024 sales revenue was $180,000...
+```
+
+### Automated Test Suite
+
+Run the original test suite (creates test documents):
+
+```bash
+python tests/test_assistant.py
 ```
 
 This will:
@@ -638,6 +693,29 @@ print(assistant.query("Calculate the average"))
 # Test Summarization
 print(assistant.query("Summarize the documents"))
 ```
+
+### Interactive Jupyter Notebook
+
+Launch the interactive demo notebook:
+
+```bash
+jupyter notebook notebooks/document_assistant_demo.ipynb
+```
+
+The notebook includes:
+- ✅ Complete test suite with 8 different tests
+- ✅ Sample data pre-loaded from `data/` directory
+- ✅ Step-by-step demonstrations of all features
+- ✅ Custom query cells for experimentation
+- ✅ Real-time results and statistics
+
+**Quick Start**:
+1. Install Jupyter: `pip install jupyter notebook`
+2. Configure `.env` with your `OPENAI_API_KEY`
+3. Launch notebook: `jupyter notebook notebooks/`
+4. Run cells with `Shift + Enter`
+
+See [notebooks/README.md](notebooks/README.md) for detailed instructions.
 
 ## Built With
 
@@ -717,10 +795,11 @@ Potential improvements:
 ## Documentation
 
 - **[README.md](README.md)** - This file (overview and usage)
-- **[IMPLEMENTATION.md](IMPLEMENTATION.md)** - Technical implementation details
-- **[QUICK_START.md](QUICK_START.md)** - Quick start guide
-- **[VOCAREUM_SETUP.md](VOCAREUM_SETUP.md)** - Vocareum configuration
-- **[PROJECT_RUBRIC_CHECKLIST.md](PROJECT_RUBRIC_CHECKLIST.md)** - Rubric compliance
+- **[IMPLEMENTATION.md](docs/IMPLEMENTATION.md)** - Technical implementation details
+- **[QUICK_START.md](docs/QUICK_START.md)** - Quick start guide
+- **[VOCAREUM_SETUP.md](docs/VOCAREUM_SETUP.md)** - Vocareum configuration
+- **[PROJECT_RUBRIC_CHECKLIST.md](docs/PROJECT_RUBRIC_CHECKLIST.md)** - Rubric compliance
+- **[TESTING_GUIDE.md](docs/TESTING_GUIDE.md)** - Complete testing guide
 
 ## License
 
