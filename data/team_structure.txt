@@ -1,0 +1,123 @@
+Company Team Structure
+======================
+
+Leadership Team
+---------------
+
+Alice Johnson - Chief Technology Officer (CTO)
+- Email: alice.johnson@company.com
+- Department: Technology
+- Experience: 15 years in software development
+- Responsibilities:
+  * Overall technology strategy
+  * Team leadership and mentoring
+  * Architecture decisions
+  * Stakeholder communication
+
+Engineering Department
+----------------------
+
+Bob Smith - Senior Software Developer
+- Email: bob.smith@company.com
+- Department: Engineering
+- Experience: 8 years in full-stack development
+- Skills: Python, JavaScript, React, Node.js
+- Current Projects:
+  * Website Redesign - Lead Developer
+  * Mobile App Development - Backend Lead
+- Performance Rating: Excellent
+
+Carol White - UX/UI Designer
+- Email: carol.white@company.com
+- Department: Design
+- Experience: 6 years in product design
+- Skills: Figma, Adobe XD, User Research, Prototyping
+- Current Projects:
+  * Website Redesign - Lead Designer
+  * Mobile App Development - UI/UX Lead
+- Performance Rating: Outstanding
+
+David Brown - Data Analyst
+- Email: david.brown@company.com
+- Department: Analytics
+- Experience: 5 years in data analysis
+- Skills: Python, SQL, Tableau, Power BI, Statistics
+- Current Projects:
+  * Data Analytics Dashboard - Project Lead
+  * Sales Performance Analysis
+- Performance Rating: Excellent
+
+Active Projects
+---------------
+
+1. Website Redesign
+   - Budget: $30,000
+   - Status: In Progress (65% complete)
+   - Timeline: Q1-Q2 2024
+   - Team: Bob Smith (Dev), Carol White (Design)
+   - Objective: Modernize company website with improved UX
+
+2. Mobile App Development
+   - Budget: $50,000
+   - Status: Planning Phase
+   - Timeline: Q2-Q3 2024
+   - Team: Bob Smith (Backend), Carol White (UI/UX)
+   - Objective: Launch iOS and Android customer portal
+
+3. Data Analytics Dashboard
+   - Budget: $20,000
+   - Status: Completed
+   - Completion Date: March 2024
+   - Team: David Brown (Lead)
+   - Objective: Real-time business intelligence dashboard
+
+Total Project Budget: $100,000
+
+Team Statistics
+---------------
+- Total Team Members: 4
+- Average Experience: 8.5 years
+- Projects Completed: 1
+- Projects In Progress: 1
+- Projects In Planning: 1
+- Team Satisfaction Score: 4.5/5.0
+- Remote Work: Hybrid (3 days office, 2 days remote)
+
+Department Budget Allocation
+----------------------------
+- Engineering: 45%
+- Design: 25%
+- Analytics: 20%
+- Leadership: 10%
+
+Skills Matrix
+-------------
+Programming Languages: Python, JavaScript, TypeScript, SQL
+Frameworks: React, Node.js, Django, Flask
+Tools: Git, Docker, Kubernetes, CI/CD
+Cloud: AWS, Azure, GCP
+Design: Figma, Adobe Creative Suite
+Analytics: Tableau, Power BI, Jupyter
+
+Training & Development
+----------------------
+- Annual Training Budget per Employee: $2,500
+- Conference Attendance: 2 per year per employee
+- Online Learning Platforms: Udemy, Coursera, Pluralsight
+- Internal Knowledge Sharing: Weekly tech talks
+
+Hiring Plans
+------------
+Q2 2024:
+- Junior Developer (1 position)
+- QA Engineer (1 position)
+
+Q3 2024:
+- DevOps Engineer (1 position)
+- Product Manager (1 position)
+
+Performance Review Schedule
+---------------------------
+- Quarterly Reviews: March, June, September, December
+- Annual Compensation Review: December
+- 360-Degree Feedback: Bi-annually

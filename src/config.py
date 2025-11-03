@@ -30,17 +30,36 @@ def get_openai_client(
     if not api_key:
         raise ValueError("OPENAI_API_KEY not found in environment variables")
 
-    # Use Vocareum endpoint if no custom base_url provided
+    # Determine base URL based on API_PROVIDER setting
     if base_url is None:
-        base_url = os.getenv("OPENAI_BASE_URL", "https://openai.vocareum.com/v1")
+        api_provider = os.getenv("API_PROVIDER", "vocareum").lower()
 
-    # Create LangChain ChatOpenAI instance with custom base URL
-    llm = ChatOpenAI(
-        model=model,
-        temperature=temperature,
-        openai_api_key=api_key,
-        openai_api_base=base_url
-    )
+        if api_provider == "openai":
+            # Use standard OpenAI API (base_url will be None, using default)
+            base_url = None
+        elif api_provider == "vocareum":
+            # Use Vocareum endpoint
+            base_url = os.getenv("OPENAI_BASE_URL", "https://openai.vocareum.com/v1")
+        else:
+            # Invalid provider, default to vocareum
+            print(f"Warning: Invalid API_PROVIDER '{api_provider}'. Using 'vocareum' as default.")
+            base_url = os.getenv("OPENAI_BASE_URL", "https://openai.vocareum.com/v1")
+
+    # Create LangChain ChatOpenAI instance
+    if base_url:
+        llm = ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            openai_api_key=api_key,
+            openai_api_base=base_url
+        )
+    else:
+        # Use default OpenAI API
+        llm = ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            openai_api_key=api_key
+        )
 
     return llm
 
